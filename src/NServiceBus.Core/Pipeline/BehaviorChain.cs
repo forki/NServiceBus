@@ -2,23 +2,33 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
+    using System.Linq;
     using System.Runtime.ExceptionServices;
 
     class BehaviorChain<T> where T : BehaviorContext
     {
-        readonly PipelineExecutor pipelineExecutor;
-        Queue<Type> itemDescriptors = new Queue<Type>();
-        Stack<Queue<Type>> snapshots = new Stack<Queue<Type>>();
-        ExceptionDispatchInfo preservedRootException;
-        Pipe pipe;
-
         public BehaviorChain(IEnumerable<Type> behaviorList, PipelineExecutor pipelineExecutor)
         {
             this.pipelineExecutor = pipelineExecutor;
             foreach (var behaviorType in behaviorList)
             {
                 itemDescriptors.Enqueue(behaviorType);
+            }
+
+            PopulateLookupTable(pipelineExecutor);
+        }
+
+        static void PopulateLookupTable(PipelineExecutor executor)
+        {
+            if (lookupSteps == null)
+            {
+                lock (lockObj)
+                {
+                    if (lookupSteps == null)
+                    {
+                        lookupSteps = executor.Incoming.Concat(executor.Outgoing).ToDictionary(rs => rs.BehaviorType);
+                    }
+                }
             }
         }
 
@@ -27,8 +37,7 @@
             try
             {
                 context.SetChain(this);
-                pipe = new Pipe();
-                pipelineExecutor.AddNewInstance(pipe);
+                sessionId = Guid.NewGuid().ToString();
                 InvokeNext(context);
             }
             catch
@@ -46,7 +55,6 @@
         {
             if (itemDescriptors.Count == 0)
             {
-                pipe.CompleteSteps();
                 return;
             }
 
@@ -54,15 +62,16 @@
 
             try
             {
-                var instance = (IBehavior<T>)context.Builder.Build(behaviorType);
-                var step = new Step { Behavior = behaviorType, Id = "stepId" };
-
-                var watch = Stopwatch.StartNew();
+                var instance = (IBehavior<T>) context.Builder.Build(behaviorType);
+                var step = new Step
+                {
+                    Behavior = behaviorType,
+                    StepId = lookupSteps[behaviorType].StepId,
+                    SessionId = sessionId
+                };
+                pipelineExecutor.InvokeStepStarted(step);
                 instance.Invoke(context, () => InvokeNext(context));
-                watch.Stop();
-                step.Duration = watch.Elapsed;
-                pipe.AddStep(step);
-
+                pipelineExecutor.InvokeStepEnded(step);
             }
             catch (Exception exception)
             {
@@ -70,8 +79,6 @@
                 {
                     preservedRootException = ExceptionDispatchInfo.Capture(exception);
                 }
-
-                pipe.CompleteSteps();
 
                 throw;
             }
@@ -86,5 +93,15 @@
         {
             itemDescriptors = new Queue<Type>(snapshots.Pop());
         }
+
+// ReSharper disable StaticFieldInGenericType
+        static Dictionary<Type, RegisterStep> lookupSteps;
+        static object lockObj = new object();
+// ReSharper restore StaticFieldInGenericType
+        readonly PipelineExecutor pipelineExecutor;
+        Queue<Type> itemDescriptors = new Queue<Type>();
+        ExceptionDispatchInfo preservedRootException;
+        string sessionId;
+        Stack<Queue<Type>> snapshots = new Stack<Queue<Type>>();
     }
 }

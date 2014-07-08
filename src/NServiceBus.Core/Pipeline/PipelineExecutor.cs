@@ -44,9 +44,14 @@
         /// <summary>
         /// Running instances.
         /// </summary>
-        public IObservable<Pipe> Instances
+        public IObservable<Step> StepStarted
         {
-            get { return pipelineInstances; }
+            get { return stepStarted; }
+        }
+
+        public IObservable<Step> StepEnded
+        {
+            get { return stepEnded; }
         }
 
         /// <summary>
@@ -122,9 +127,14 @@
             return context;
         }
 
-        internal void AddNewInstance(Pipe instance)
+        internal void InvokeStepStarted(Step step)
         {
-            pipelineInstances.Add(instance);
+            stepStarted.Add(step);
+        }
+
+        internal void InvokeStepEnded(Step step)
+        {
+            stepEnded.Add(step);
         }
 
         void DisposeManaged()
@@ -149,7 +159,8 @@
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
         IEnumerable<Type> incomingBehaviors;
         IEnumerable<Type> outgoingBehaviors;
-        PipelineInstanceTracker pipelineInstances = new PipelineInstanceTracker();
+        StepsObservable stepStarted = new StepsObservable();
+        StepsObservable stepEnded = new StepsObservable();
         IBuilder rootBuilder;
     }
 }
