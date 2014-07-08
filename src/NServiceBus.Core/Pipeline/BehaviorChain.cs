@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Runtime.ExceptionServices;
 
@@ -34,11 +35,19 @@
 
         public void Invoke(T context)
         {
+            Stopwatch duration = null;
+            var pipeId = Guid.NewGuid().ToString();
+
             try
             {
                 context.SetChain(this);
-                sessionId = Guid.NewGuid().ToString();
-                InvokeNext(context);
+
+                pipelineExecutor.InvokePipeStarted(new PipeStarted
+                {
+                    PipeId = pipeId
+                });
+                duration = Stopwatch.StartNew();
+                InvokeNext(context, pipeId);
             }
             catch
             {
@@ -49,9 +58,24 @@
 
                 throw;
             }
+            finally
+            {
+                var elapsed = TimeSpan.Zero;
+                if (duration != null)
+                {
+                    duration.Stop();
+                    elapsed = duration.Elapsed;
+                }
+
+                pipelineExecutor.InvokePipeEnded(new PipeEnded
+                {
+                    PipeId = pipeId,
+                    Duration = elapsed
+                });
+            }
         }
 
-        void InvokeNext(T context)
+        void InvokeNext(T context, string pipeId)
         {
             if (itemDescriptors.Count == 0)
             {
@@ -59,19 +83,20 @@
             }
 
             var behaviorType = itemDescriptors.Dequeue();
+            Stopwatch duration = null;
 
             try
             {
                 var instance = (IBehavior<T>) context.Builder.Build(behaviorType);
-                var step = new Step
+                pipelineExecutor.InvokeStepStarted(new StepStarted
                 {
                     Behavior = behaviorType,
                     StepId = lookupSteps[behaviorType].StepId,
-                    SessionId = sessionId
-                };
-                pipelineExecutor.InvokeStepStarted(step);
-                instance.Invoke(context, () => InvokeNext(context));
-                pipelineExecutor.InvokeStepEnded(step);
+                    PipeId = pipeId
+                });
+                duration = Stopwatch.StartNew();
+                instance.Invoke(context, () => InvokeNext(context, pipeId));
+                
             }
             catch (Exception exception)
             {
@@ -81,6 +106,22 @@
                 }
 
                 throw;
+            }
+            finally
+            {
+                var elapsed = TimeSpan.Zero;
+                if (duration != null)
+                {
+                    duration.Stop();
+                    elapsed = duration.Elapsed;
+                }
+                
+                pipelineExecutor.InvokeStepEnded(new StepEnded
+                    {
+                        StepId = lookupSteps[behaviorType].StepId,
+                        PipeId = pipeId,
+                        Duration = elapsed
+                    });
             }
         }
 
@@ -101,7 +142,6 @@
         readonly PipelineExecutor pipelineExecutor;
         Queue<Type> itemDescriptors = new Queue<Type>();
         ExceptionDispatchInfo preservedRootException;
-        string sessionId;
         Stack<Queue<Type>> snapshots = new Stack<Queue<Type>>();
     }
 }

@@ -3,14 +3,14 @@ namespace NServiceBus.Pipeline
     using System;
 
     /// <summary>
-    /// Pipeline step
+    /// Step execution ended.
     /// </summary>
-    public struct Step
+    public struct StepEnded
     {
         /// <summary>
-        /// Session identifier. 
+        /// Pipe identifier. 
         /// </summary>
-        public string SessionId { get; set; }
+        public string PipeId { get; set; }
 
         /// <summary>
         /// Step identifier.
@@ -18,8 +18,8 @@ namespace NServiceBus.Pipeline
         public string StepId { get; internal set; }
 
         /// <summary>
-        /// Behavior type.
+        /// Elapsed time.
         /// </summary>
-        public Type Behavior { get; internal set; }
+        public TimeSpan Duration { get; set; }
     }
 }

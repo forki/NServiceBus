@@ -42,16 +42,35 @@
         public IList<RegisterStep> Outgoing { get; private set; }
 
         /// <summary>
-        /// Running instances.
+        ///     Running instances.
         /// </summary>
-        public IObservable<Step> StepStarted
+        public IObservable<StepStarted> StepStarted
         {
             get { return stepStarted; }
         }
 
-        public IObservable<Step> StepEnded
+        /// <summary>
+        ///     Step ended
+        /// </summary>
+        public IObservable<StepEnded> StepEnded
         {
             get { return stepEnded; }
+        }
+
+        /// <summary>
+        ///     Running instances.
+        /// </summary>
+        public IObservable<PipeStarted> PipeStarted
+        {
+            get { return pipeStarted; }
+        }
+
+        /// <summary>
+        ///     Step ended
+        /// </summary>
+        public IObservable<PipeEnded> PipeEnded
+        {
+            get { return pipeEnded; }
         }
 
         /// <summary>
@@ -127,14 +146,24 @@
             return context;
         }
 
-        internal void InvokeStepStarted(Step step)
+        internal void InvokeStepStarted(StepStarted step)
         {
             stepStarted.Add(step);
         }
 
-        internal void InvokeStepEnded(Step step)
+        internal void InvokeStepEnded(StepEnded step)
         {
             stepEnded.Add(step);
+        }
+
+        internal void InvokePipeStarted(PipeStarted pipe)
+        {
+            pipeStarted.Add(pipe);
+        }
+
+        internal void InvokePipeEnded(PipeEnded pipe)
+        {
+            pipeEnded.Add(pipe);
         }
 
         void DisposeManaged()
@@ -159,8 +188,10 @@
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
         IEnumerable<Type> incomingBehaviors;
         IEnumerable<Type> outgoingBehaviors;
-        StepsObservable stepStarted = new StepsObservable();
-        StepsObservable stepEnded = new StepsObservable();
+        ObservableList<PipeEnded> pipeEnded = new ObservableList<PipeEnded>();
+        ObservableList<PipeStarted> pipeStarted = new ObservableList<PipeStarted>();
         IBuilder rootBuilder;
+        ObservableList<StepEnded> stepEnded = new ObservableList<StepEnded>();
+        ObservableList<StepStarted> stepStarted = new ObservableList<StepStarted>();
     }
 }

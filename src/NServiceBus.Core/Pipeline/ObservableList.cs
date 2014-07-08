@@ -4,24 +4,24 @@ namespace NServiceBus.Pipeline
     using System.Collections.Generic;
     using Janitor;
 
-    class StepsObservable : IObservable<Step>
+    class ObservableList<T> : IObservable<T>
     {
-        public StepsObservable()
+        public ObservableList()
         {
-            observers = new List<IObserver<Step>>();
+            observers = new List<IObserver<T>>();
         }
 
-        public IDisposable Subscribe(IObserver<Step> observer)
+        public IDisposable Subscribe(IObserver<T> observer)
         {
             if (!observers.Contains(observer))
             {
                 observers.Add(observer);
             }
 
-            return new Unsubscriber(observers, observer);
+            return new Unsubscriber<T>(observers, observer);
         }
 
-        public void Add(Step step)
+        public void Add(T step)
         {
             foreach (var observer in observers)
             {
@@ -37,12 +37,12 @@ namespace NServiceBus.Pipeline
             }
         }
 
-        List<IObserver<Step>> observers;
+        List<IObserver<T>> observers;
 
         [SkipWeaving]
-        class Unsubscriber : IDisposable
+        class Unsubscriber<S> : IDisposable
         {
-            public Unsubscriber(List<IObserver<Step>> observers, IObserver<Step> observer)
+            public Unsubscriber(List<IObserver<S>> observers, IObserver<S> observer)
             {
                 this.observers = observers;
                 this.observer = observer;
@@ -56,8 +56,8 @@ namespace NServiceBus.Pipeline
                 }
             }
 
-            IObserver<Step> observer;
-            List<IObserver<Step>> observers;
+            IObserver<S> observer;
+            List<IObserver<S>> observers;
         }
     }
 }
