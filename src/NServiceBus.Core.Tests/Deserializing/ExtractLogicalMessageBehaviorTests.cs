@@ -15,7 +15,7 @@ namespace NServiceBus.Core.Tests.Deserializing
     public class ExtractLogicalMessageBehaviorTests
     {
         [Test]
-        public void Test()
+        public void MultipleInheritanceWithUnknownRootClass()
         {
             var mapper = new MessageMapper();
             mapper.Initialize(new[] { typeof(IMyFirstEvent), typeof(IMySecondEvent) });
@@ -24,13 +24,17 @@ namespace NServiceBus.Core.Tests.Deserializing
             metadataRegistry.RegisterMessageType(typeof(IMyFirstEvent));
             metadataRegistry.RegisterMessageType(typeof(IMySecondEvent));
 
-            var behavior = new ExtractLogicalMessagesBehavior();
-            behavior.UnicastBus = new UnicastBus();
-            behavior.MessageSerializer = new NopSerializer(mapper);
-            behavior.LogicalMessageFactory = new LogicalMessageFactory();
-            behavior.LogicalMessageFactory.MessageMapper = mapper;
-            behavior.LogicalMessageFactory.MessageMetadataRegistry = metadataRegistry;
-            behavior.MessageMetadataRegistry = metadataRegistry;
+            var behavior = new ExtractLogicalMessagesBehavior
+            {
+                UnicastBus = new UnicastBus(),
+                MessageSerializer = new NopSerializer(mapper),
+                LogicalMessageFactory = new LogicalMessageFactory
+                {
+                    MessageMapper = mapper,
+                    MessageMetadataRegistry = metadataRegistry
+                },
+                MessageMetadataRegistry = metadataRegistry
+            };
 
             var transportMessage = new TransportMessage();
             transportMessage.Headers.Add(Headers.EnclosedMessageTypes, string.Join(";", typeof(MyEvent), typeof(IMyFirstEvent), typeof(IMySecondEvent)));
@@ -72,18 +76,22 @@ namespace NServiceBus.Core.Tests.Deserializing
 
             public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
             {
-                if (messageTypes == null)
-                    return new object[0];
-
-                var result = new object[messageTypes.Count];
-
-                var i = 0;
-                foreach (var messageType in messageTypes)
+                return new[]
                 {
-                    result[i++] = mapper.CreateInstance(messageType);
-                }
+                    mapper.CreateInstance(messageTypes.First())
+                };
+                //if (messageTypes == null)
+                //    return new object[0];
 
-                return result;
+                //var result = new object[messageTypes.Count];
+
+                //var i = 0;
+                //foreach (var messageType in messageTypes)
+                //{
+                //    result[i++] = mapper.CreateInstance(messageType);
+                //}
+
+                //return result;
             }
 
             public string ContentType
