@@ -83,3 +83,4 @@ src/scaffolding.config
 
 # Approval tests temp file
 *.received.*
+.paket/paket.exe

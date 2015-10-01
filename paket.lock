@@ -1,0 +1,41 @@
+FRAMEWORK: >= NET45
+NUGET
+  remote: https://nuget.org/api/v2
+  specs:
+    ApiApprover (3.0.1)
+      ApprovalTests
+      Mono.Cecil
+    ApprovalTests (3.0.8)
+      ApprovalUtilities
+    ApprovalUtilities (3.0.8)
+    Autofac (3.5.2)
+    Fody (1.29.3) - content: once
+    GitVersionTask (2.0.1)
+    Janitor.Fody (1.1.1.0)
+      Fody
+    Mono.Cecil (0.9.5.4)
+    Newtonsoft.Json (5.0.6)
+    NuDoq (1.2.5)
+    NuGetPackager (0.5.5)
+      GitVersionTask (>= 1.3.0)
+    NUnit (2.6.4)
+    Obsolete.Fody (4.0.0)
+      Fody
+    RhinoMocks (3.6.1)
+    Rx-Core (2.2.5)
+      Rx-Interfaces (>= 2.2.5)
+    Rx-Interfaces (2.2.5)
+    Rx-Linq (2.2.5)
+      Rx-Core (>= 2.2.5)
+      Rx-Interfaces (>= 2.2.5)
+    Rx-Main (2.2.5)
+      Rx-Core (>= 2.2.5)
+      Rx-Interfaces (>= 2.2.5)
+      Rx-Linq (>= 2.2.5)
+      Rx-PlatformServices (>= 2.2.5)
+    Rx-PlatformServices (2.2.5)
+      Rx-Core (>= 2.2.5)
+      Rx-Interfaces (>= 2.2.5)
+  remote: https://www.myget.org/F/particular
+  specs:
+    Particular.Licensing.Sources (0.1.54)

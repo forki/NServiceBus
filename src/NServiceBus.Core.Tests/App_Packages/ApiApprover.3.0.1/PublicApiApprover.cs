@@ -27,7 +27,7 @@ namespace ApiApprover
 
         private class AssemblyPathNamer : UnitTestFrameworkNamer
         {
-            string name;
+            private readonly string name;
 
             public AssemblyPathNamer(string assemblyPath)
             {

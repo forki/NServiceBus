@@ -2,6 +2,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{FC379B6D-2C12-42FE-8452-349C4B751C74}"
+	ProjectSection(SolutionItems) = preProject
+		..\paket.dependencies = ..\paket.dependencies
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.ContainerTests", "NServiceBus.ContainerTests\NServiceBus.ContainerTests.csproj", "{0A282BF4-0957-4074-8D5E-C2FB8634A3AA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2904B75F-8F07-4C07-BABC-BC42533B3E75}"
@@ -17,11 +22,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Core.x86.Tests", "NServiceBus.Core.Tests.x86\NServiceBus.Core.x86.Tests.csproj", "{389628F6-2FB4-4AFF-BACC-16726C44FFA4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.PerformanceTests", "NServiceBus.PerformanceTests\NServiceBus.PerformanceTests.csproj", "{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{ACCDE2E1-3F56-47BA-8CFF-199931BAC6B0}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

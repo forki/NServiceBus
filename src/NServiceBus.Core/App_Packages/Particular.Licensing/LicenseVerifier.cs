@@ -41,7 +41,7 @@
 
         class SignedXmlVerifier
         {
-            string publicKey;
+            readonly string publicKey;
 
             public SignedXmlVerifier(string publicKey)
             {

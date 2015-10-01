@@ -1,0 +1,16 @@
+framework: >= net45
+source https://www.nuget.org/api/v2/
+source https://www.myget.org/F/particular/
+
+nuget ApiApprover
+nuget Autofac
+nuget Janitor.Fody
+nuget Newtonsoft.Json
+nuget NuDoq
+nuget NuGetPackager
+nuget NUnit
+nuget Obsolete.Fody
+nuget Fody content: once 
+nuget Particular.Licensing.Sources 
+nuget RhinoMocks
+nuget Rx-Main
